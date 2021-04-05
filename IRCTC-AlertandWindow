@@ -1,0 +1,86 @@
+package week4.day1;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+//import org.openqa.selenium.Alert;
+//import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoAlertPresentException;
+//import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import java.lang.Thread;
+//import java.time.Duration;
+
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+//import org.openqa.selenium.support.ui.WebDriverWait;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+
+
+public class AlertsandWindows 
+{
+
+	public static void main(String[] args) throws InterruptedException
+	{
+		      //Open https://www.myntra.com/
+				WebDriverManager.chromedriver().setup();
+				ChromeDriver driver=new ChromeDriver();
+				ChromeOptions options=new ChromeOptions();
+				options.addArguments("--disable-notifications");
+				driver.get("https://www.irctc.co.in/");
+				driver.manage().window().maximize();			
+			    driver.manage().timeouts().implicitlyWait(10000, TimeUnit.MILLISECONDS);
+			    Thread.sleep(5000);
+			  
+			    //Click Ok button in the dialog 			   
+			     driver.findElement(By.xpath("//button[text()='OK']")).click();			   
+			    try
+			    {
+			     driver.switchTo().alert().accept();
+			    }
+			    catch(NoAlertPresentException e)
+			    {
+			    	System.out.println("Alert Box is Closed Now");
+			    }
+			   
+			    //Click on Menu link using Mouse Over 
+			   
+			    Actions actions = new Actions(driver);	
+				WebElement firstmover= driver.findElement(By.xpath("//div[@class='h_menu_drop_button hidden-xs']//i[1]"));
+				actions.moveToElement(firstmover).perform();
+		        System.out.println("Mouse Over action performed");
+		        
+			    //Click on Flights using New Window		        
+		        driver.findElement(By.xpath("//label[text()='FLIGHTS']")).click();
+		        //Size
+		  		Set<String> allWindows=driver.getWindowHandles();
+		        System.out.println("Current Windows :"+allWindows.size());
+		       
+		        //Flight Tab
+		      
+			    Thread.sleep(7000);
+			    List<String> fWindow= new ArrayList<String>(allWindows);
+		        String swindow=fWindow.get(1);
+		        driver.switchTo().window(swindow);			    
+			    driver.findElement(By.xpath("//li[@class='nav-item active']//a[1]")).click();
+			   
+		        //Print Customer Care ID
+		        String cusid1 = driver.findElement(By.xpath("//div[contains(@class,'block-nav-right d-none')]//a")).getText();
+			    System.out.println("Customer Care Number 1 : "+cusid1);
+			    String cusid2 = driver.findElement(By.xpath("//div[contains(@class,'block-nav-right d-none')]//a[2]")).getText();
+			    System.out.println("Customer Care Number 2 : "+cusid2);
+			    String cusid3 = driver.findElement(By.xpath("(//div[contains(@class,'block-nav-right d-none')]//a)[3]")).getText();
+			    System.out.println("Customer Care Email ID : "+cusid3);
+			    //Close the First tab
+			    driver.switchTo().window(fWindow.get(0));
+			    driver.close();
+			    
+	}
+}
