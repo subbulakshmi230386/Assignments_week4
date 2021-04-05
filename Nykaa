@@ -108,7 +108,8 @@ public class Nykaa
        driver.findElement(By.name("email")).sendKeys("lakshmi.pers@gmail.com");
        driver.findElement(By.name("phoneNumber")).sendKeys("6380241341");
        driver.findElement(By.name("pinCode")).sendKeys("600059");
-       driver.findElement(By.xpath("//textarea[@class='textarea-control prl10']")).click();
+       //driver.findElement(By.xpath("//textarea[@class='textarea-control prl10']")).click();
+        driver.findElement(By.tagName("textarea")).sendKeys("NGO Colony");
        driver.findElement(By.xpath("//button[@type='submit']")).click();
        
        // 13. Click on Paynow
