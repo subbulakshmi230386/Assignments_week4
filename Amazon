@@ -60,7 +60,8 @@ public class amazon {
         WebElement load = driver.findElement(By.id("add-to-cart-button"));  
         load.click();       
        // String addedToCart = driver.findElement(By.xpath("//div[@id='attachAddBaseItemSuccessAlert']/div/h4")).getText();
-        String addedToCart = driver.findElement(By.cssSelector("#attachAddBaseItemSuccessAlert h4")).getText();
+        //String addedToCart = driver.findElement(By.cssSelector("#attachAddBaseItemSuccessAlert h4")).getText();
+	String addedToCart = driver.findElement(By.xpath("//span[@id='attach-accessory-cart-total-string']//b[1]/preceding::h4[@class='a-alert-heading'][1]")).getText();
         System.out.print(addedToCart);
         if(cnfm.equalsIgnoreCase(addedToCart))
         System.out.println("Confirmed added to cart text message appeared");
