@@ -1,0 +1,135 @@
+package wk4.day2;
+import java.util.ArrayList;
+
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import org.openqa.selenium.support.ui.Select;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+public class Ajio {
+
+	public static void main(String[] args) throws InterruptedException
+	{
+		WebDriverManager.chromedriver().setup();
+		ChromeDriver driver=new ChromeDriver();
+		driver.get("https://www.ajio.com/shop/sale ");
+		driver.manage().window().maximize();			
+	    driver.manage().timeouts().implicitlyWait(10000, TimeUnit.MILLISECONDS);
+	    Thread.sleep(5000);
+	    
+	    //2.Enter Bags in the Search field and Select Women Handbags 
+	    driver.findElement(By.name("searchVal")).sendKeys("Bag");
+	    driver.findElement(By.xpath("//button[@type='submit']//span[1]")).click();
+	    driver.findElement(By.xpath("//label[@for='Women']")).click();
+	    System.out.println("Bag->Women");
+   
+        //3.Click on five grid and Select SORT BY as "What's New"	   
+	 
+	    Select selOptions = new Select(driver.findElement(By.xpath("//*[@id=\"products\"]/div[3]/div/div[3]/div/select")));
+	    List<WebElement> options = selOptions.getOptions();
+		System.out.println("Number of Bag Sort By :"+options.size());
+		driver.findElement(By.xpath("//*[@id='products']/div[3]/div/div[3]/div/select/option[4]")).click();
+	
+	    //4.Click Price on the side menu and Enter Price Range Min as 2000 and Max as 5000 
+		driver.findElement(By.xpath("//span[text()='price']")).click();		
+	    System.out.println("Enter Price Range:2000 to 5000");
+	    driver.findElement(By.id("minPrice")).sendKeys("2000");
+	    driver.findElement(By.id("maxPrice")).sendKeys("5000",Keys.ENTER);	    
+	    
+	    //5.Click on the first product 	  
+	   
+	    String firstitem= driver.findElement(By.xpath("(//div[@class='contentHolder']//div)[2]")).getText();
+	    driver.findElement(By.xpath("(//div[@class='contentHolder']//div)[2]")).click();
+	    System.out.println("First Product Name: "+firstitem); 
+        	    
+        //Switch to new window
+        Set<String> allWindows=driver.getWindowHandles();           
+        List<String> fWindow= new ArrayList<String>(allWindows);
+        driver.switchTo().window(fWindow.get(1));		
+        
+        //6.Get the actual price, coupon code and discount price
+        //Actual Price       
+        System.out.println("------------------------------------------------");
+        String actualprice = driver.findElement(By.className("prod-sp")).getText().replaceAll("[^0-9]", "");
+        int aprs=Integer.parseInt(actualprice);
+        System.out.println("Actual Price : "+aprs);
+        //Discount Price
+        String off = driver.findElement(By.className("prod-discnt")).getText().replaceAll("[^0-9]","");       
+        int dprs=Integer.parseInt(off);
+        System.out.println("Discount : "+dprs+"%");
+        //Coupon Code
+       // String coupentext = driver.findElement(By.xpath("//div[@class='promo-title']")).getText();
+        String coupentext = driver.findElement(By.xpath("//div[@class='promo-title-blck']//div[1]")).getText();
+        String[] split = coupentext.split("Code");
+		String couponcode = (split[split.length - 1]).replaceAll("[^a-zA-Z]", "");
+		System.out.println("Coupon Code :"+couponcode);
+		System.out.println("------------------------------------------------");
+		
+        //) 7.Check the availability of the product for pincode 560043, print the expected delivery date if it is available
+		driver.findElement(By.xpath("(//div[@class='edd-pincode-msg-container']//span)[2]")).click();
+	    driver.findElement(By.name("pincode")).sendKeys("560043");	  
+		driver.findElement(By.xpath("//button[text()='CONFIRM PINCODE']")).click();		
+		String expectedDelivery = driver.findElement(By.xpath("//li[text()='Expected Delivery: ']")).getText();
+		System.out.println(expectedDelivery);
+		  System.out.println("------------------------------------------------");
+	    //)8. Click on Other Informations under Product Details and Print the Customer Care details         
+       // driver.findElement(By.className("btn-product-details")).click();
+        driver.findElement(By.xpath("//div[text()='Other information']")).click();
+        String ccadd = driver.findElement(By.xpath("//div[text()='Customer Care Address']")).getText();
+        System.out.println(ccadd);
+        String cusadd = driver.findElement(By.xpath("(//div[text()='Customer Care Address']/following::div[@class='title'])[1]")).getText();
+		System.out.println(cusadd);
+	    System.out.println("------------------------------------------------");
+        //9.Click on ADD TO BAG and then GO TO BAG  
+        driver.findElement(By.xpath("//span[text()='ADD TO BAG']")).click();
+        driver.findElement(By.xpath("//span[text()='GO TO BAG']")).click();
+        
+       // 10.Check the Order Total before apply coupon 
+        String rs = driver.findElement(By.xpath("//div[@class='priceinfo-top']/following-sibling::div[1]")).getText();
+	    System.out.println("Order Total before apply coupon :"+rs);
+	    System.out.println("------------------------------------------------");
+	    //11.Enter Coupon Code and Click Apply  
+	    driver.findElement(By.id("couponCodeInput")).sendKeys(couponcode);
+	   
+        //12) Print the warning message if the product is not eligible discount  
+	    driver.findElement(By.xpath("//button[text()='Apply']")).click();
+		//boolean coupenid = driver.findElement(By.xpath("//span[@class='voucher-error error-message info']")).isDisplayed();
+		boolean couponApplied = driver.findElement(By.xpath("(//span[@class='applied-coupon-section']//p)[2]")).isDisplayed();		
+		if(couponApplied)
+			System.out.println("Verified For Discount Eligible  ");
+		else
+			System.out.println("Not Eligible For Discount");
+		  System.out.println("------------------------------------------------");
+		//12(a) Verify the bill amount is matching with the discount price or not
+		
+		//Total Price
+		String tamount=driver.findElement(By.xpath("//*[@id=\"orderTotal\"]/span[2]")).getText();
+		System.out.println("Billing Amount :"+tamount);
+		String tamt=tamount.replaceAll("[^0-9]", "");      
+        int totalamount=Integer.parseInt(tamt);
+        //Discount Price
+       	String dp = driver.findElement(By.xpath("//div[@class='net-price best-price-strip']")).getText();
+		System.out.println("Amount With Discount Price :"+dp);
+		String dis=dp.replaceAll("[^0-9]", "");      
+        int disprice=Integer.parseInt(dis);
+        //Verify
+		if(totalamount==disprice)
+			System.out.println("Bill amount is matching with the discount price");
+		else
+			System.out.println("Bill amount is not matching with the discount price");
+		  System.out.println("------------------------------------------------");
+       //13) Click on Delete and Delete the item from Bag
+		driver.findElement(By.xpath("//div[text()='Delete']")).click();
+		driver.findElement(By.xpath("(//div[@class='delete-btn'])[2]")).click();
+       //14) Close all the browsers
+		driver.quit();
+	}
+
+}
