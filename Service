@@ -1,0 +1,131 @@
+package week4.day1;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+//import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class service
+{
+
+	public static void main(String[] args)throws InterruptedException
+	{
+	//1: Load ServiceNow application https://dev68594.service-now.com/
+		WebDriverManager.chromedriver().setup();
+		
+		ChromeDriver driver=new ChromeDriver();	
+	    driver.get("https://dev68594.service-now.com/");
+	    driver.manage().window().maximize();			
+	    driver.manage().timeouts().implicitlyWait(10000, TimeUnit.MILLISECONDS);
+	    System.out.println("Service");
+	    System.out.println("---------------------");
+	    Thread.sleep(4000);
+	   // MoveFrame
+		WebElement movlogframe=driver.findElement(By.xpath("//iframe[@id='gsft_main']"));
+		driver.switchTo().frame(movlogframe);
+		
+	//2: Enter username as “admin”
+	   driver.findElement(By.id("user_name")).sendKeys("admin");	  
+	//3: Enter password as “India@123”
+	    driver.findElement(By.id("user_password")).sendKeys("India@123");
+	//4: Click Login
+	    driver.findElement(By.xpath("//button[@type='submit']")).click();
+		driver.switchTo().defaultContent();
+	    
+	//5: Search “incident “ Filter Navigator
+	    driver.findElement(By.name("filter")).sendKeys("incident");
+	
+    //6: Click “All”
+	    driver.findElement(By.xpath("//div[text()='All']")).click();
+	   // List <WebElement> framesList = driver.findElements(By.xpath("//iframe"));
+	   // System.out.println(framesList.size());
+	    
+	    //Move Frame for new Button
+		WebElement movnewframe =driver.findElement(By.xpath("//iframe[@id='gsft_main']"));
+		driver.switchTo().frame(movnewframe);
+
+  //7: Click New button
+		driver.findElement(By.xpath("//*[@id='sysverb_new']")).click();
+		Thread.sleep(4000);
+		
+   
+  //8 &9: Select a value for Caller and Enter value for short_description		
+		
+		String incinum="";
+		incinum = driver.findElement(By.id("incident.number")).getAttribute("value");		
+		System.out.println("The incident number : "+incinum);
+      
+		driver.findElement(By.xpath("//button[@id='lookup.incident.caller_id']//span[1]")).click();
+		//Move to new window
+		Set<String> allwindow=driver.getWindowHandles();
+ 		List<String>window=new ArrayList<String>(allwindow);
+ 		driver.switchTo().window(window.get(1));
+ 		
+ 		driver.findElement(By.xpath("//span[@class='sr-only']/following-sibling::input[1]"));	
+ 		
+ 		driver.findElement(By.xpath("//input[@id='sys_user_table_header_search_control']/following::a")).click();
+ 		
+ 		allwindow=driver.getWindowHandles();
+ 		window=new ArrayList<String>(allwindow);
+ 		driver.switchTo().window(window.get(0));
+ 		Thread.sleep(2000);
+ 		WebElement movetoframeer =driver.findElement(By.xpath("//iframe[@id='gsft_main']"));
+		driver.switchTo().frame(movetoframeer);
+		
+		//short description
+ 		 Actions action=new Actions(driver);
+ 		
+ 		WebElement description=driver.findElement(By.xpath("//span[@class='icon icon-lightbulb']"));
+ 		 action.click(description).perform();
+ 		allwindow=driver.getWindowHandles();
+ 		window=new ArrayList<String>(allwindow);
+ 		driver.switchTo().window(window.get(1)); 		
+ 		driver.findElement(By.linkText("Issue with a web page")).click(); 	    
+ 	    Thread.sleep(2000);
+ 	    allwindow=driver.getWindowHandles();
+		window=new ArrayList<String>(allwindow);
+		driver.switchTo().window(window.get(0));
+		WebElement movesubmitframe =driver.findElement(By.xpath("//iframe[@id='gsft_main']"));
+		driver.switchTo().frame(movesubmitframe);	
+		
+		
+	//10.click submit
+		//WebElement sub=driver.findElement(By.id("sysverb_insert_bottom"));
+		//action.click(sub).perform();
+		driver.findElement(By.id("sysverb_insert_bottom")).click();
+		
+	//11: Search the same incident number in the next search screen as below
+		WebElement searchnum= driver.findElement(By.xpath("//span[@class='input-group-addon input-group-select']//select[1]")); 
+		Select sIndex=new Select(searchnum);
+		sIndex.selectByVisibleText("for text");	
+	    
+		driver.findElement(By.xpath("//input[@class='form-control']")).sendKeys(incinum,Keys.ENTER);
+
+	  
+	//12.verify incident creation
+			Thread.sleep(4000);
+				WebElement incident= driver.findElement(By.xpath("//*[@aria-label='Open record: "+incinum+"']"));
+				String verifyincident=incident.getText();				
+				boolean verify=driver.findElement(By.xpath("//*[@aria-label='Open record: "+incinum+"']")).isDisplayed();
+				if(verify==true)
+				{
+					if(verifyincident.equals(incinum))					
+					  System.out.println("The Incident Number is created successfully");
+					else
+					  System.out.print("Not Successfully");	
+				
+			}
+		
+	}
+
+}
